@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftUI
 
 struct OptionsView: View {
-    @State private var plates: [String] = ["G00225X"]
+    @State private var plates: [String] = []
     @State private var selectedPlate: String = ""
     @State private var newPlate: String = ""
     
@@ -21,33 +21,58 @@ struct OptionsView: View {
     let licenseKey = "SavedLicensePlates"
     let driverKey = "SavedDrivers"
     
+    var onSelectPlate: (String) -> Void
+    var onSelectDriver: (String) -> Void
+    var onReload: (Bool) -> Void
+    
+    
     var body: some View {
         VStack(spacing: 20) {
             // Dropdown menu
             Spacer()
             Spacer()
-            Picker("Select a license plate", selection: $selectedPlate) {
-                ForEach(plates, id: \.self) { option in
-                    Text(option)
+            HStack{
+            VStack{
+                if !plates.isEmpty{
+                    Picker("Select a license plate", selection: $selectedPlate) {
+                        ForEach(plates, id: \.self) { option in
+                            Text(option)
+                            
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .onChange(of: selectedPlate, initial: true) {
+                        onSelectPlate(selectedPlate)
+                        //onShowWebView(false)
+                    }
+                }
+                
+                if !drivers.isEmpty{
+                    Picker("Select a driver", selection: $selectedDriver) {
+                        ForEach(drivers, id: \.self) { option in
+                            Text(option)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    .onChange(of: selectedDriver, initial: true) {
+                        onSelectDriver(selectedDriver)
+                        //onShowWebView(false)
+                    }
+                    
                 }
             }
-            .pickerStyle(MenuPickerStyle())
-            
-            
-            
-            Picker("Select a driver", selection: $selectedDriver) {
-                ForEach(drivers, id: \.self) { option in
-                    Text(option)
+                Button("SUBMIT"){
+                    onReload(true)
+                    
+                    print("pushed")
                 }
-            }
-            .pickerStyle(MenuPickerStyle())
-            
-            ScrollView(){
+        }
                 VStack(){
                     List {
                         ForEach(plates, id: \.self) { option in
                             HStack {
                                 Text(option)
+                                let _ = print(option)
                                 Spacer()
                                 Button(role: .destructive) {
                                     deletePlate(option)
@@ -58,8 +83,9 @@ struct OptionsView: View {
                         }
                     }
                     // Add new option
+                    
                     HStack {
-                        TextField("Add new option", text: $newPlate)
+                        TextField("Add new plate number", text: $newPlate)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
                         Button("Add") {
@@ -73,6 +99,7 @@ struct OptionsView: View {
                         .disabled(newPlate.trimmingCharacters(in: .whitespaces).isEmpty)
                         
                     }
+                    
                     
                     List {
                         ForEach(drivers, id: \.self) { option in
@@ -88,8 +115,9 @@ struct OptionsView: View {
                         }
                     }
                     // Add new option
+                    
                     HStack {
-                        TextField("Add new option", text: $newDriver)
+                        TextField("Add new driver", text: $newDriver)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
                         Button("Add") {
@@ -106,12 +134,13 @@ struct OptionsView: View {
                     
                     
                 }
-            }
+            
+            .frame(maxHeight: .infinity)
         }
         .padding()
-         .onAppear {
-           loadDrivers()
-             loadPlates()
+        .onAppear {
+            loadDrivers()
+            loadPlates()
         }
         
     }
@@ -130,7 +159,7 @@ struct OptionsView: View {
             plates = saved
             selectedPlate = saved.first!
         } else {
-            plates = ["G00225X"]
+            plates = ["GX"]
             selectedPlate = plates[0]
             savePlates()
         }
@@ -184,5 +213,6 @@ struct OptionsView: View {
 
 
 #Preview {
-    OptionsView()
+    let dummyPlate = "plate"
+    OptionsView(onSelectPlate: {_ in return }, onSelectDriver: {_ in return}, onReload: {_ in return})
 }

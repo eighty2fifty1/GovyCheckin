@@ -8,21 +8,31 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var showingOptions = true
-
+    @State var showingOptions = true
+    @State var showingWebView = false
+    @State var driver: String = ""
+    @State var plate: String = ""
+    @State var shouldReload = false
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-        
+        VStack{
+            WebView(tagNumber: plate, driverName: driver, shouldReload: $shouldReload)
+            
+            Text("You selected \(driver) and \(plate)")
+            
+            
             .sheet(isPresented: $showingOptions){
-                OptionsView()
-                    .presentationDetents([.fraction(0.15), .large])
-                    .presentationDragIndicator(.visible)
-                    .interactiveDismissDisabled(true)
-
+                OptionsView(onSelectPlate: {value in
+                    plate = value}, onSelectDriver: {value in driver = value}, onReload: {value in shouldReload = value})
+                .presentationDetents([.fraction(0.25), .large])
+                .presentationDragIndicator(.visible)
+                .interactiveDismissDisabled(true)
+                
             }
+        }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(driver: "d", plate: "a")
 }

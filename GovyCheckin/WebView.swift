@@ -10,9 +10,11 @@ import WebKit
 
 
 struct WebView: UIViewRepresentable {
-    var url: URL
+    var url = URL(string: "https://forms.osi.apps.mil/pages/responsepage.aspx?id=AD4z43fIh0u2rUXpQt4XUItb1mjrY3hAjyLPhTvCkXNUOUxERjNLT1pCUTFGUjlTMlRXMjcwSkdCNC4u&origin=QRCode&route=shorturl)")
     var tagNumber: String
     var driverName: String
+
+    @Binding var shouldReload: Bool
 
     func makeCoordinator() -> Coordinator {
         Coordinator(tagNumber: tagNumber, driverName: driverName)
@@ -21,11 +23,18 @@ struct WebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         let webView = WKWebView()
         webView.navigationDelegate = context.coordinator
-        webView.load(URLRequest(url: url))
+        webView.load(URLRequest(url: url!))
         return webView
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        if shouldReload {
+            uiView.reload()
+            DispatchQueue.main.async {
+                shouldReload = false // Reset after reload
+            }
+        }
+    }
 
     class Coordinator: NSObject, WKNavigationDelegate {
         let tagNumber: String
@@ -55,5 +64,5 @@ struct WebView: UIViewRepresentable {
     var url = URL(string: "https://forms.osi.apps.mil/pages/responsepage.aspx?id=AD4z43fIh0u2rUXpQt4XUItb1mjrY3hAjyLPhTvCkXNUOUxERjNLT1pCUTFGUjlTMlRXMjcwSkdCNC4u&origin=QRCode&route=shorturl)")
     var tagNumber = "G1002335X"
     var driverName = "AWFC Ford, James"
-    WebView(url: url!, tagNumber: tagNumber, driverName: driverName)
+    WebView(url: url!, tagNumber: tagNumber, driverName: driverName, shouldReload: .constant(false))
 }
